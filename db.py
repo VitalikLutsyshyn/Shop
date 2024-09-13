@@ -36,6 +36,14 @@ class DatabaseManager:
         self.close()
         return products
 
+    def search_title_categories(self,categorie):
+        self.open()
+        self.cursor.execute("""SELECT * FROM categories WHERE title =? """,[categorie])
+        categories = self.cursor.fetchone()
+        self.close()
+        return categories
+
+
 
 #функція реєстрації
 
