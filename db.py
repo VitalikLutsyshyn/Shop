@@ -38,13 +38,28 @@ class DatabaseManager:
 
     def search_title_categories(self,categorie):
         self.open()
-        self.cursor.execute("""SELECT * FROM categories WHERE title =? """,[categorie])
-        categories = self.cursor.fetchone()
-        self.close()
-        return categories
+        # self.cursor.execute("""SELECT id FROM categories WHERE title =? """,[categorie])
+        # category_id = self.cursor.fetchone()[0]
+        # self.cursor.execute("""SELECT * FROM products WHERE category_id =? """,[category_id])
+        self.cursor.execute("""SELECT products.id,products.title,products.price,categories.title
+                                FROM products
+                                INNER JOIN  categories ON products.category_id=categories.id 
+                                WHERE categories.title =? """,[categorie])
+        products = self.cursor.fetchall()
+        self.close()    
+        return products
+    
+    def create_user(self, name, surname, email, phone_number, password):
+        self.open()
+        self.cursor.execute("""SELECT * FROM users WHERE email=? OR phone_number=?""",[email,phone_number])
+        is_user_exist = self.cursor.fetchone()
+        if is_user_exist:
+            return False
+        else:     
+            self.cursor.execute("""INSERT INTO users (name,surname,email,phone_number,password)
+                                    VALUES (?, ?, ?, ?, ?)""",[name, surname, email, phone_number, password])
+            self.connect.commit()
+            self.close()
 
+            return True
 
-
-#функція реєстрації
-
-        
