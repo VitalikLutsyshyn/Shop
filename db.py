@@ -62,4 +62,36 @@ class DatabaseManager:
             self.close()
 
             return True
+        
+    def check_user(self,email,password):
+        self.open()
+        self.cursor.execute("""SELECT * FROM users WHERE email=? AND password=?""",[email,password])
+        user_register = self.cursor.fetchone()
+        self.close()
 
+        return user_register
+        
+    def add_to_order(self,item_id,quantity,order_id):
+        self.open()
+        self.cursor.execute("""INSERT INTO product_in_order(order_id,product_id,quantity)
+                                VALUES(?,?,?)""",[order_id,item_id,quantity])
+        self.connect.commit()
+        self.close()
+
+    def create_order(self,user_id):
+        self.open()
+        self.cursor.execute("""INSERT INTO orders(user_id)
+                                VALUES(?)""",[user_id])
+        order_id = self.cursor.lastrowid
+        self.connect.commit()
+        self.close()
+
+        return order_id
+        
+    def submit_order(self,order_id,city,address,comment):
+        self.open()
+        self.cursor.execute("""UPDATE orders
+                                SET city=?,address=?,comment=?
+                                WHERE id=?""",[city,address,comment,order_id])
+        self.connect.commit()
+        self.close()
