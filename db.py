@@ -80,18 +80,38 @@ class DatabaseManager:
 
     def create_order(self,user_id):
         self.open()
-        self.cursor.execute("""INSERT INTO orders(user_id)
-                                VALUES(?)""",[user_id])
+        self.cursor.execute("""INSERT INTO orders(user_id, status)
+                                VALUES(?,?)""",[user_id, "Нове замовлення"])
         order_id = self.cursor.lastrowid
         self.connect.commit()
         self.close()
 
         return order_id
         
-    def submit_order(self,order_id,city,address,comment):
+    def submit_order(self,order_id,city,address,comment,status):
         self.open()
         self.cursor.execute("""UPDATE orders
-                                SET city=?,address=?,comment=?
-                                WHERE id=?""",[city,address,comment,order_id])
+                                SET city=?,address=?,comment=?,status=?
+                                WHERE id=?""",[city,address,comment,status,order_id])
         self.connect.commit()
         self.close()
+
+    def get_current_order(self,current_user_id ):
+        self.open()
+        self.cursor.execute("""SELECT id FROM orders WHERE user_id=? AND status=? """,[current_user_id,"Нове замовлення"])
+        order = self.cursor.fetchone()
+
+        self.close()
+        return order 
+    
+    def get_order_list(self,order_id):
+        self.open()
+        self.cursor.execute("""SELECT pio.product_id,pio.quantity,p.title,p.price
+                            FROM product_in_order pio
+                            INNER JOIN products p ON pio.product_id = p.id
+                            WHERE pio.order_id = ?
+                            """,[order_id])
+        products = self.cursor.fetchall()
+        
+        self.close()
+        return products

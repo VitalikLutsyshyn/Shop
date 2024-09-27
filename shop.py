@@ -28,7 +28,7 @@ def add_to_cart(product_id):
 
 
 while True:
-    answer = input("Виберіть дію.0-Кінець1-Всі товари 2-Пошук за номером товару 3-Пошук за назвою товару 4-Пошук за категорією,5-Створити профіль:")
+    answer = input("Виберіть дію.0-Кінець1-Всі товари 2-Пошук за номером товару 3-Пошук за назвою товару 4-Пошук за категорією,5-Створити профіль:,6-вхід в акаунт 7-офрмлення замовлення:,8-Переглянути замовлення")
     if answer == "0":
         break
 
@@ -75,6 +75,10 @@ while True:
         email = input("Ваш зареєстрований email:")
         password = input("Ваш пароль:")
         current_user = db.check_user(email,password)
+        
+        current_order = db.get_current_order(current_user[0])
+        if current_order:
+            current_order_id = current_order[0]
         if current_user:
             print("Вітаємо ",current_user[1],current_user[2])
         else:
@@ -84,11 +88,14 @@ while True:
         city = input("Введіть ваше місто:")
         address = input("Введіть ваш адрес:")
         comment = input("Введіть коментар до замовлення:")
-        db.submit_order(current_order_id,city,address,comment)
+        db.submit_order(current_order_id,city,address,comment,"Підтверджено")
         current_order_id = None
         print("ЗАмовлення оформлено!")
-
-
-#зробити в таблиці orders його статус на оформлене неоформлене в дорозі
-#зробити відображення кошика
-#зробити видалення товару з кошика
+        
+    elif answer == "8":
+        if current_order_id:
+            order_list = db.get_order_list(current_order_id)
+            for product in order_list:
+                print(f"Товар:{product[0]} - {product[1]} шт. -{product[2]} {product[3]}грн.")
+        else:
+            print("Ви ще не створили замовлення")
